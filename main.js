@@ -10,7 +10,9 @@ form.addEventListener('submit', async (e) => {
   const restbestand = document.getElementById('restbestand').value
   const melder = document.getElementById('melder').value
 
-  const { error } = await supabase.from('meldungen').insert([{ artikelname, restbestand, melder }])
+  const { error } = await supabase.from('meldungen').insert([
+    { artikelname, restbestand, melder, status: 'Bedarf gemeldet' }
+  ])
 
   if (error) {
     feedback.textContent = 'Fehler: ' + error.message
@@ -23,8 +25,14 @@ form.addEventListener('submit', async (e) => {
   }
 })
 
+function statusBadge(status) {
+  const base = 'status-badge'
+  const cls = status.toLowerCase().replaceAll(' ', '-')
+  return `<span class="${base} status-${cls}">${status}</span>`
+}
+
 async function ladeMeldungen() {
-  table.innerHTML = '' // Tabelle leeren
+  table.innerHTML = ''
 
   const { data, error } = await supabase
     .from('meldungen')
@@ -32,7 +40,7 @@ async function ladeMeldungen() {
     .order('erstellt_at', { ascending: false })
 
   if (error) {
-    table.innerHTML = '<tr><td colspan="3">Fehler beim Laden</td></tr>'
+    table.innerHTML = '<tr><td colspan="4">Fehler beim Laden</td></tr>'
     return
   }
 
@@ -42,10 +50,10 @@ async function ladeMeldungen() {
       <td>${row.artikelname}</td>
       <td>${row.restbestand}</td>
       <td>${row.melder}</td>
+      <td>${statusBadge(row.status || 'Bedarf gemeldet')}</td>
     `
     table.appendChild(tr)
   })
 }
 
-// Direkt beim Laden Daten abrufen
 ladeMeldungen()
