@@ -1,18 +1,44 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bestellmeldung</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bestellmeldung</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #f5f5f5; }
+    form, table { background: white; padding: 1rem; border-radius: 5px; max-width: 600px; margin: 2rem auto; }
+    label { display: block; margin-bottom: 0.5rem; }
+    input, button { width: 100%; padding: 0.5rem; margin-bottom: 1rem; }
+    .success { color: green; font-weight: bold; }
+    .error { color: red; font-weight: bold; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 0.5rem; border: 1px solid #ccc; text-align: left; }
+    h2 { text-align: center; }
+  </style>
 </head>
 <body>
-    <h1>Bestellmeldung Tool</h1>
-    <form>
-        <label>Artikelname: <input type="text" name="artikel" /></label><br/>
-        <label>Restbestand: <input type="number" name="restbestand" /></label><br/>
-        <label>Ihr Name: <input type="text" name="melder" /></label><br/>
-        <button type="submit">Meldung absenden</button>
-    </form>
+  <form id="meldungForm">
+    <label>Artikelname: <input type="text" id="artikelname" required></label>
+    <label>Restbestand: <input type="number" id="restbestand" required></label>
+    <label>Ihr Name: <input type="text" id="melder" required></label>
+    <button type="submit">Meldung senden</button>
+    <div id="feedback"></div>
+  </form>
+
+  <h2>Gemeldete Artikel</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Artikelname</th>
+        <th>Restbestand</th>
+        <th>Gemeldet von</th>
+      </tr>
+    </thead>
+    <tbody id="meldungsdaten">
+      <!-- JS befüllt hier die Tabelle -->
+    </tbody>
+  </table>
+
+  <script type="module" src="./main.js"></script>
 </body>
 </html>
-
