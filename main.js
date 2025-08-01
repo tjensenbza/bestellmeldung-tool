@@ -1,38 +1,45 @@
 import { supabase } from './supabaseClient.js'
 
-const form = document.getElementById('meldungForm')
-const feedback = document.getElementById('feedback')
-const table = document.getElementById('meldungsdaten')
+document.addEventListener('DOMContentLoaded', async () => {
+  await ladeMeldungen()
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault()
-  const artikelname = document.getElementById('artikelname').value
-  const restbestand = document.getElementById('restbestand').value
-  const melder = document.getElementById('melder').value
+  const form = document.getElementById('meldung-form')
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const artikelname = document.getElementById('artikelname').value
+    const restbestand = parseInt(document.getElementById('restbestand').value)
+    const melder = document.getElementById('melder').value
 
-  const { error } = await supabase.from('meldungen').insert([
-    { artikelname, restbestand, melder, status: 'Bedarf gemeldet' }
-  ])
+    const { error } = await supabase.from('meldungen').insert([
+      { artikelname, restbestand, melder }
+    ])
 
-  if (error) {
-    feedback.textContent = 'Fehler: ' + error.message
-    feedback.className = 'error'
-  } else {
-    feedback.textContent = 'Meldung erfolgreich gesendet!'
-    feedback.className = 'success'
-    form.reset()
-    ladeMeldungen()
-  }
+    if (error) {
+      alert('Fehler beim Speichern der Meldung.')
+      console.error(error)
+    } else {
+      // EmailJS senden
+      emailjs.send('service_635wmwu', 'template_yzgxwx6', {
+        artikelname: artikelname,
+        restbestand: restbestand,
+        melder: melder
+      })
+      .then((response) => {
+        console.log('E-Mail gesendet:', response.status)
+      }, (error) => {
+        console.error('E-Mail-Fehler:', error)
+      })
+
+      form.reset()
+      await ladeMeldungen()
+      alert('Meldung erfolgreich gesendet!')
+    }
+  })
 })
 
-function statusBadge(status) {
-  const base = 'status-badge'
-  const cls = status.toLowerCase().replaceAll(' ', '-')
-  return `<span class="${base} status-${cls}">${status}</span>`
-}
-
 async function ladeMeldungen() {
-  table.innerHTML = ''
+  const tableBody = document.getElementById('meldungen-body')
+  tableBody.innerHTML = ''
 
   const { data, error } = await supabase
     .from('meldungen')
@@ -40,20 +47,18 @@ async function ladeMeldungen() {
     .order('erstellt_at', { ascending: false })
 
   if (error) {
-    table.innerHTML = '<tr><td colspan="4">Fehler beim Laden</td></tr>'
+    console.error('Fehler beim Laden der Daten:', error)
     return
   }
 
-  data.forEach(row => {
-    const tr = document.createElement('tr')
-    tr.innerHTML = `
-      <td>${row.artikelname}</td>
-      <td>${row.restbestand}</td>
-      <td>${row.melder}</td>
-      <td>${statusBadge(row.status || 'Bedarf gemeldet')}</td>
+  data.forEach((meldung) => {
+    const row = document.createElement('tr')
+    row.innerHTML = `
+      <td>${meldung.artikelname}</td>
+      <td>${meldung.restbestand}</td>
+      <td>${meldung.melder}</td>
+      <td><span class="badge">${meldung.status}</span></td>
     `
-    table.appendChild(tr)
+    tableBody.appendChild(row)
   })
 }
-
-ladeMeldungen()
