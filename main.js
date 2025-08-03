@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error(error)
     } else {
       // EmailJS senden
-      emailjs.send('service_635wmwu', 'template_yzgxwx6', { ... })
+      emailjs.send('service_635wmwu', 'template_yzgxwx6', {
         artikelname: artikelname,
         restbestand: restbestand,
         melder: melder
@@ -57,7 +57,7 @@ async function ladeMeldungen() {
       <td>${meldung.artikelname}</td>
       <td>${meldung.restbestand}</td>
       <td>${meldung.melder}</td>
-      <td><span class="badge">${meldung.status}</span></td>
+      <td><span class="badge">${meldung.status ?? '–'}</span></td>
     `
     tableBody.appendChild(row)
   })
