@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return
     }
 
-    // E-Mail versenden
+    // E-Mail senden
     window.emailjs.send('service_635wmwu', 'template_yzgxwx6', {
       artikelname: artikelname,
       restbestand: restbestand,
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Formular leeren
     form.reset()
 
-    // ➕ Neuer Eintrag sofort sichtbar machen
+    // Neue Zeile direkt anzeigen
     const tableBody = document.getElementById('meldungen-body')
     const newRow = document.createElement('tr')
     newRow.innerHTML = `
@@ -51,10 +51,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     `
     tableBody.prepend(newRow)
 
-    // Fallback: gesamte Liste neu laden nach kurzer Zeit
-    setTimeout(ladeMeldungen, 1000)
+    // Erfolgsbox anzeigen
+    const feedback = document.getElementById('meldung-feedback')
+    feedback.style.display = 'block'
+    setTimeout(() => {
+      feedback.style.display = 'none'
+    }, 4000)
 
-    alert('✅ Meldung erfolgreich gesendet!')
+    // Daten vorsichtshalber synchronisieren
+    setTimeout(ladeMeldungen, 1000)
   })
 })
 
