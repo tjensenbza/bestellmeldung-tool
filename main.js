@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const restbestand = parseInt(document.getElementById('restbestand').value)
     const melder = document.getElementById('melder').value
 
-    // ➤ 1. Speichern in Supabase
+    // Speichern in Supabase
     const { error } = await supabase.from('meldungen').insert([
       { artikelname, restbestand, melder }
     ])
@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return
     }
 
-    // ➤ 2. E-Mail senden
-    emailjs.send('service_635wmwu', 'template_yzgxwx6', {
+    // E-Mail senden über EmailJS
+    window.emailjs.send('service_635wmwu', 'template_yzgxwx6', {
       artikelname: artikelname,
       restbestand: restbestand,
       melder: melder
@@ -37,14 +37,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     )
 
-    // ➤ 3. Formular zurücksetzen & neu laden
     form.reset()
     await ladeMeldungen()
     alert('✅ Meldung erfolgreich gesendet!')
   })
 })
 
-// Daten aus Supabase laden
+// Meldungen aus Supabase laden
 async function ladeMeldungen() {
   const tableBody = document.getElementById('meldungen-body')
   tableBody.innerHTML = ''
