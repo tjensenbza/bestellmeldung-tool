@@ -80,14 +80,6 @@
       color: #333;
       font-size: 0.85rem;
     }
-    @media (max-width: 600px) {
-      body, main {
-        padding: 1rem;
-      }
-      table {
-        font-size: 0.9rem;
-      }
-    }
   </style>
 </head>
 <body>
@@ -95,7 +87,6 @@
   <header>Bestellmeldungstool</header>
 
   <main>
-    <!-- Erfolgsbox -->
     <div id="meldung-feedback">
       ✅ Meldung erfolgreich gesendet!
     </div>
@@ -126,21 +117,17 @@
         </tr>
       </thead>
       <tbody id="meldungen-body">
-        <!-- Einträge werden hier per JS eingefügt -->
+        <!-- JS fügt hier Einträge ein -->
       </tbody>
     </table>
   </main>
 
-  <!-- Supabase & App-Logik -->
   <script type="module" src="supabaseClient.js"></script>
   <script type="module" src="main.js"></script>
-
-  <!-- Neue EmailJS SDK -->
   <script type="module">
     import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-    emailjs.init('Lbr8GkmRKaWI8UFxT');
+    emailjs.init('Lbr8GkmRKaWI8UFxT'); // <-- dein Public Key
     window.emailjs = emailjs;
   </script>
-
 </body>
 </html>
