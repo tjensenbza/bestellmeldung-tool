@@ -11,45 +11,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     const restbestand = parseInt(document.getElementById('restbestand').value)
     const melder = document.getElementById('melder').value
 
-    // Speichern in Supabase
     const { error } = await supabase.from('meldungen').insert([
       { artikelname, restbestand, melder }
     ])
 
     if (error) {
-      alert('❌ Fehler beim Speichern der Meldung.')
+      alert('❌ Fehler beim Speichern.')
       console.error(error)
       return
     }
 
-    // E-Mail senden
+    // E-Mail versenden
     window.emailjs.send('service_635wmwu', 'template_yzgxwx6', {
-      artikelname: artikelname,
-      restbestand: restbestand,
-      melder: melder
+      artikelname,
+      restbestand,
+      melder
     }).then(
-      function (response) {
-        console.log("✅ E-Mail versendet:", response.status, response.text)
+      (response) => {
+        console.log("✅ E-Mail gesendet:", response.status, response.text)
       },
-      function (error) {
+      (error) => {
         console.error("❌ E-Mail-Fehler:", error)
-        alert("Fehler beim E-Mail-Versand: " + JSON.stringify(error))
       }
     )
 
-    // Formular leeren
     form.reset()
-
-    // Neue Zeile direkt anzeigen
-    const tableBody = document.getElementById('meldungen-body')
-    const newRow = document.createElement('tr')
-    newRow.innerHTML = `
-      <td>${artikelname}</td>
-      <td>${restbestand}</td>
-      <td>${melder}</td>
-      <td><span class="badge">Bedarf gemeldet</span></td>
-    `
-    tableBody.prepend(newRow)
 
     // Erfolgsbox anzeigen
     const feedback = document.getElementById('meldung-feedback')
@@ -58,8 +44,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       feedback.style.display = 'none'
     }, 4000)
 
-    // Daten vorsichtshalber synchronisieren
-    setTimeout(ladeMeldungen, 1000)
+    // Liste neu laden
+    await ladeMeldungen()
   })
 })
 
@@ -73,7 +59,7 @@ async function ladeMeldungen() {
     .order('erstellt_at', { ascending: false })
 
   if (error) {
-    console.error('❌ Fehler beim Laden der Daten:', error)
+    console.error('❌ Fehler beim Laden:', error)
     return
   }
 
