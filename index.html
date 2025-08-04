@@ -28,6 +28,15 @@
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
+    #meldung-feedback {
+      display: none;
+      padding: 1rem;
+      background-color: #d4edda;
+      color: #155724;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
     form {
       display: flex;
       flex-direction: column;
@@ -86,6 +95,11 @@
   <header>Bestellmeldungstool</header>
 
   <main>
+    <!-- Erfolgsbox -->
+    <div id="meldung-feedback">
+      ✅ Meldung erfolgreich gesendet!
+    </div>
+
     <form id="meldung-form">
       <div>
         <label for="artikelname">Artikelname</label>
@@ -117,15 +131,15 @@
     </table>
   </main>
 
-  <!-- Supabase + App-Logik -->
+  <!-- Supabase & App-Logik -->
   <script type="module" src="supabaseClient.js"></script>
   <script type="module" src="main.js"></script>
 
-  <!-- Neue EmailJS SDK (funktioniert mit Public Key) -->
+  <!-- Neue EmailJS SDK -->
   <script type="module">
     import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
     emailjs.init('Lbr8GkmRKaWI8UFxT');
-    window.emailjs = emailjs; // wichtig für Zugriff aus main.js
+    window.emailjs = emailjs;
   </script>
 
 </body>
