@@ -117,14 +117,15 @@
     </table>
   </main>
 
-  <!-- Supabase & App-Logik -->
+  <!-- Supabase + App-Logik -->
   <script type="module" src="supabaseClient.js"></script>
   <script type="module" src="main.js"></script>
 
-  <!-- EmailJS: Immer ganz am Ende laden -->
-  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script>
+  <!-- Neue EmailJS SDK (funktioniert mit Public Key) -->
+  <script type="module">
+    import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
     emailjs.init('Lbr8GkmRKaWI8UFxT');
+    window.emailjs = emailjs; // wichtig für Zugriff aus main.js
   </script>
 
 </body>
