@@ -1,9 +1,9 @@
 import { supabase } from './supabaseClient.js'
 
-document.addEventListener('DOMContentLoaded', async () => {
-  await ladeMeldungen()
-
+document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('meldung-form')
+  const feedback = document.getElementById('meldung-feedback')
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
 
@@ -16,8 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ])
 
     if (error) {
-      alert('❌ Fehler beim Speichern der Meldung.')
-      console.error(error)
+      alert('❌ Fehler beim Speichern')
       return
     }
 
@@ -26,49 +25,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       restbestand,
       melder
     }).then(
-      (response) => {
-        console.log('✅ E-Mail versendet:', response.status, response.text)
-      },
-      (error) => {
-        console.error('❌ E-Mail-Fehler:', error)
-      }
+      () => console.log("✅ E-Mail versendet"),
+      (error) => console.error("❌ E-Mail-Fehler:", error)
     )
 
     form.reset()
-
-    // Erfolgsbox anzeigen
-    const feedback = document.getElementById('meldung-feedback')
     feedback.style.display = 'block'
-    setTimeout(() => {
-      feedback.style.display = 'none'
-    }, 4000)
-
-    await ladeMeldungen()
+    setTimeout(() => feedback.style.display = 'none', 4000)
+    ladeMeldungen()
   })
+
+  ladeMeldungen()
 })
 
 async function ladeMeldungen() {
-  const tableBody = document.getElementById('meldungen-body')
-  tableBody.innerHTML = ''
+  const body = document.getElementById('meldungen-body')
+  body.innerHTML = ''
+  const { data, error } = await supabase.from('meldungen').select('*').order('erstellt_at', { ascending: false })
+  if (error) return
 
-  const { data, error } = await supabase
-    .from('meldungen')
-    .select('*')
-    .order('erstellt_at', { ascending: false })
-
-  if (error) {
-    console.error('❌ Fehler beim Laden:', error)
-    return
-  }
-
-  data.forEach((meldung) => {
+  data.forEach((m) => {
     const row = document.createElement('tr')
-    row.innerHTML = `
-      <td>${meldung.artikelname}</td>
-      <td>${meldung.restbestand}</td>
-      <td>${meldung.melder}</td>
-      <td><span class="badge">${meldung.status ?? '–'}</span></td>
-    `
-    tableBody.appendChild(row)
+    row.innerHTML = `<td>${m.artikelname}</td><td>${m.restbestand}</td><td>${m.melder}</td><td>${m.status ?? '-'}</td>`
+    body.appendChild(row)
   })
 }
