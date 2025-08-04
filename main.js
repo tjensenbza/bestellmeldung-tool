@@ -16,22 +16,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     ])
 
     if (error) {
-      alert('❌ Fehler beim Speichern.')
+      alert('❌ Fehler beim Speichern der Meldung.')
       console.error(error)
       return
     }
 
-    // E-Mail versenden
     window.emailjs.send('service_635wmwu', 'template_yzgxwx6', {
       artikelname,
       restbestand,
       melder
     }).then(
       (response) => {
-        console.log("✅ E-Mail gesendet:", response.status, response.text)
+        console.log('✅ E-Mail versendet:', response.status, response.text)
       },
       (error) => {
-        console.error("❌ E-Mail-Fehler:", error)
+        console.error('❌ E-Mail-Fehler:', error)
       }
     )
 
@@ -44,7 +43,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       feedback.style.display = 'none'
     }, 4000)
 
-    // Liste neu laden
     await ladeMeldungen()
   })
 })
