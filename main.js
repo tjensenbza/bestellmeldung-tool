@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return
     }
 
-    // E-Mail senden über EmailJS
+    // E-Mail versenden
     window.emailjs.send('service_635wmwu', 'template_yzgxwx6', {
       artikelname: artikelname,
       restbestand: restbestand,
@@ -37,13 +37,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     )
 
+    // Formular leeren
     form.reset()
-    await ladeMeldungen()
+
+    // ➕ Neuer Eintrag sofort sichtbar machen
+    const tableBody = document.getElementById('meldungen-body')
+    const newRow = document.createElement('tr')
+    newRow.innerHTML = `
+      <td>${artikelname}</td>
+      <td>${restbestand}</td>
+      <td>${melder}</td>
+      <td><span class="badge">Bedarf gemeldet</span></td>
+    `
+    tableBody.prepend(newRow)
+
+    // Fallback: gesamte Liste neu laden nach kurzer Zeit
+    setTimeout(ladeMeldungen, 1000)
+
     alert('✅ Meldung erfolgreich gesendet!')
   })
 })
 
-// Meldungen aus Supabase laden
 async function ladeMeldungen() {
   const tableBody = document.getElementById('meldungen-body')
   tableBody.innerHTML = ''
