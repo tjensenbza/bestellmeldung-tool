@@ -143,13 +143,15 @@
     </table>
   </main>
 
+  <!-- JavaScript einbinden -->
   <script type="module" src="main.js"></script>
 
-  <!-- EmailJS laden + initialisieren -->
+  <!-- EmailJS initialisieren -->
   <script type="module">
     import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-    emailjs.init('Lbr8GkmRKaWI8UFxT'); // ← dein Public Key
+    emailjs.init('Lbr8GkmRKaWI8UFxT');
     window.emailjs = emailjs;
   </script>
+
 </body>
 </html>
