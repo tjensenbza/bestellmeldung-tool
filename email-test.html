@@ -2,40 +2,37 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>EmailJS Test (ohne Module)</title>
+  <title>EmailJS Test (v3 SDK)</title>
 </head>
 <body style="font-family: sans-serif; padding: 2rem;">
-  <h1>📧 EmailJS Test</h1>
+  <h1>📧 EmailJS Test (aktuell)</h1>
   <p>Wenn du auf den Button klickst, wird eine Testmail über EmailJS versendet.</p>
-  <button onclick="sendeTestMail()" style="padding: 1rem 2rem; font-size: 1rem;">Test-Mail senden</button>
+  <button id="sendeBtn" style="padding: 1rem 2rem; font-size: 1rem;">Test-Mail senden</button>
 
   <p id="status" style="margin-top: 2rem; font-weight: bold;"></p>
 
-  <!-- ✅ EmailJS direkt eingebunden -->
-  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-  <script>
-    // Initialisierung mit deinem Public Key
-    (function(){
-      emailjs.init('Lbr8GkmRKaWI8UFxT'); // Dein Public Key
-    })();
+  <script type="module">
+    import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3.11.0/+esm';
 
-    function sendeTestMail() {
+    emailjs.init('Lbr8GkmRKaWI8UFxT');
+
+    document.getElementById('sendeBtn').addEventListener('click', () => {
       document.getElementById('status').textContent = '⏳ Sende...';
 
       emailjs.send('service_635wmwu', 'template_yzgxwx6', {
-        artikelname: 'Testartikel vom iPad',
+        artikelname: 'Testartikel',
         restbestand: 3,
         melder: 'iPad User'
       })
-      .then(function(response) {
+      .then((response) => {
         document.getElementById('status').textContent = '✅ E-Mail versendet ✔️';
         console.log('✅ Erfolgreich:', response);
-      }, function(error) {
-        // Fehlerausgabe direkt sichtbar machen
-        document.getElementById('status').textContent = '❌ Fehler beim Senden: ' + JSON.stringify(error);
+      })
+      .catch((error) => {
+        document.getElementById('status').textContent = '❌ Fehler: ' + JSON.stringify(error);
         console.error('❌ Fehler:', error);
       });
-    }
+    });
   </script>
 </body>
 </html>
