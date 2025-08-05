@@ -1,11 +1,26 @@
 import { supabase } from './supabaseClient.js'
 
+let adminFreigabe = false
+
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('meldung-form')
   const feedback = document.getElementById('meldung-feedback')
-  const adminPass = 'geheim' // 👈 dein Adminpasswort
-  const passInput = document.getElementById('admin-passwort')
 
+  // Admin-Freigabe über Button
+  const adminLoginBtn = document.getElementById('admin-login-btn')
+  adminLoginBtn.addEventListener('click', (e) => {
+    e.preventDefault()
+    const pw = document.getElementById('admin-passwort').value.trim()
+    if (pw === 'geheim') {
+      adminFreigabe = true
+      alert('✅ Adminrechte freigeschaltet')
+      ladeMeldungen() // neu laden, um Dropdowns aktiv zu setzen
+    } else {
+      alert('❌ Falsches Passwort')
+    }
+  })
+
+  // Neue Meldung absenden
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
 
@@ -41,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function ladeMeldungen() {
   const tbody = document.getElementById('meldungen-body')
   tbody.innerHTML = ''
-  const passInput = document.getElementById('admin-passwort')
+
   const siebenTageZurueck = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
   const { data, error } = await supabase
@@ -60,19 +75,21 @@ async function ladeMeldungen() {
 
   sichtbare.forEach(m => {
     const row = document.createElement('tr')
-    const statusDropdown = createStatusDropdown(m.id, m.status, passInput.value.trim())
+    const statusZelle = document.createElement('td')
+    const dropdown = createStatusDropdown(m.id, m.status)
+
+    statusZelle.appendChild(dropdown)
     row.innerHTML = `
       <td>${m.artikelname}</td>
       <td>${m.restbestand}</td>
       <td>${m.melder}</td>
-      <td></td>
     `
+    row.appendChild(statusZelle)
     tbody.appendChild(row)
-    row.querySelector('td:last-child').appendChild(statusDropdown)
   })
 }
 
-function createStatusDropdown(id, currentStatus, password) {
+function createStatusDropdown(id, currentStatus) {
   const select = document.createElement('select')
   const statusOptionen = [
     'Bedarf gemeldet',
@@ -89,25 +106,28 @@ function createStatusDropdown(id, currentStatus, password) {
     select.appendChild(option)
   })
 
+  if (!adminFreigabe) {
+    select.disabled = true
+    select.title = 'Statusänderung nur mit Adminfreigabe möglich'
+  }
+
   select.addEventListener('change', async () => {
-    if (password !== 'geheim') {
-      alert('❌ Falsches Passwort – Änderung nicht erlaubt')
-      select.value = currentStatus
-      return
-    }
+    if (!adminFreigabe) return
 
     const neuerStatus = select.value
-
     const { error } = await supabase.from('meldungen')
-      .update({ status: neuerStatus, status_zeit: new Date().toISOString() })
+      .update({
+        status: neuerStatus,
+        status_zeit: new Date().toISOString()
+      })
       .eq('id', id)
 
     if (error) {
-      alert('❌ Fehler beim Aktualisieren des Status')
+      alert('❌ Fehler beim Status-Update')
       console.error(error)
-      select.value = currentStatus
     } else {
       console.log('✅ Status aktualisiert:', neuerStatus)
+      ladeMeldungen()
     }
   })
 
