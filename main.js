@@ -44,8 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
-    // 📧 E-Mail senden mit EmailJS
-    emailjs.send('DEIN_SERVICE_ID', 'DEIN_TEMPLATE_ID', {
+    // 📧 E-Mail-Benachrichtigung
+    emailjs.send('service_635wmwu', 'template_yzgxwx6', {
       artikelname,
       restbestand,
       melder
