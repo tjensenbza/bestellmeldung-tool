@@ -5,9 +5,9 @@ let adminFreigabe = false
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('meldung-form')
   const feedback = document.getElementById('meldung-feedback')
-
-  // Adminfreigabe
   const adminLoginBtn = document.getElementById('admin-login-btn')
+
+  // 🔐 Admin-Freigabe
   adminLoginBtn.addEventListener('click', (e) => {
     e.preventDefault()
     const pw = document.getElementById('admin-passwort').value.trim()
@@ -20,14 +20,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   })
 
-  // Formular absenden
+  // 📤 Neue Meldung absenden
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
 
-    const artikelname = document.getElementById('artikelname').value
+    const artikelname = document.getElementById('artikelname').value.trim()
     const restbestand = parseInt(document.getElementById('restbestand').value)
-    const melder = document.getElementById('melder').value
+    const melder = document.getElementById('melder').value.trim()
 
+    if (!artikelname || isNaN(restbestand) || !melder) {
+      alert('Bitte alle Felder korrekt ausfüllen.')
+      return
+    }
+
+    // 📝 In Supabase speichern
     const { error } = await supabase.from('meldungen').insert([
       {
         artikelname,
@@ -44,27 +50,35 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
-    // 📧 E-Mail-Benachrichtigung
-    emailjs.send('service_635wmwu', 'template_yzgxwx6', {
-      artikelname,
-      restbestand,
-      melder
-    })
-    .then(() => console.log('📧 E-Mail versendet'))
-    .catch(err => console.error('❌ E-Mail-Fehler:', err))
+    // 📧 Email senden (optional, Fehler wird nicht blockierend behandelt)
+    try {
+      await emailjs.send('service_635wmwu', 'template_yzgxwx6', {
+        artikelname,
+        restbestand,
+        melder
+      })
+      console.log('📧 E-Mail versendet')
+    } catch (err) {
+      console.error('❌ E-Mail-Fehler:', err)
+    }
 
+    // 🧹 Reset & Erfolgsmeldung
     form.reset()
     feedback.style.display = 'block'
     setTimeout(() => feedback.style.display = 'none', 3000)
+
+    // 🔁 Neu laden
     ladeMeldungen()
   })
 
   ladeMeldungen()
 })
 
+// 📥 Tabelle aktualisieren
 async function ladeMeldungen() {
   const tbody = document.getElementById('meldungen-body')
   tbody.innerHTML = ''
+
   const siebenTageZurueck = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
   const { data, error } = await supabase
@@ -97,6 +111,7 @@ async function ladeMeldungen() {
   })
 }
 
+// 🔄 Status-Auswahl (Dropdown)
 function createStatusDropdown(id, currentStatus) {
   const select = document.createElement('select')
   const statusOptionen = [
@@ -114,11 +129,13 @@ function createStatusDropdown(id, currentStatus) {
     select.appendChild(option)
   })
 
+  // Nur aktivieren, wenn Admin freigegeben
   if (!adminFreigabe) {
     select.disabled = true
     select.title = 'Statusänderung nur mit Adminfreigabe möglich'
   }
 
+  // Speichern bei Änderung
   select.addEventListener('change', async () => {
     if (!adminFreigabe) return
 
@@ -134,7 +151,7 @@ function createStatusDropdown(id, currentStatus) {
       alert('❌ Fehler beim Status-Update')
       console.error(error)
     } else {
-      console.log('✅ Status geändert:', neuerStatus)
+      console.log('✅ Status aktualisiert:', neuerStatus)
       ladeMeldungen()
     }
   })
