@@ -14,12 +14,14 @@
   <!-- ✅ EmailJS direkt eingebunden -->
   <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   <script>
+    // Initialisierung mit deinem Public Key
     (function(){
       emailjs.init('Lbr8GkmRKaWI8UFxT'); // Dein Public Key
     })();
 
     function sendeTestMail() {
       document.getElementById('status').textContent = '⏳ Sende...';
+
       emailjs.send('service_635wmwu', 'template_yzgxwx6', {
         artikelname: 'Testartikel vom iPad',
         restbestand: 3,
@@ -29,7 +31,8 @@
         document.getElementById('status').textContent = '✅ E-Mail versendet ✔️';
         console.log('✅ Erfolgreich:', response);
       }, function(error) {
-        document.getElementById('status').textContent = '❌ Fehler beim Senden';
+        // Fehlerausgabe direkt sichtbar machen
+        document.getElementById('status').textContent = '❌ Fehler beim Senden: ' + JSON.stringify(error);
         console.error('❌ Fehler:', error);
       });
     }
