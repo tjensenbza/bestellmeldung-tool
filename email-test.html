@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>EmailJS Test</title>
+</head>
+<body style="font-family: sans-serif; padding: 2rem;">
+  <h1>📧 EmailJS Test</h1>
+  <p>Wenn du auf den Button klickst, wird eine Testmail über EmailJS versendet.</p>
+  <button onclick="sendeTestMail()" style="padding: 1rem 2rem; font-size: 1rem;">Test-Mail senden</button>
+
+  <p id="status" style="margin-top: 2rem; font-weight: bold;"></p>
+
+  <script type="module">
+    import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+
+    emailjs.init('Lbr8GkmRKaWI8UFxT'); // dein Public Key
+
+    window.sendeTestMail = () => {
+      emailjs.send('service_635wmwu', 'template_yzgxwx6', {
+        artikelname: 'Testartikel vom iPad',
+        restbestand: 3,
+        melder: 'iPad User'
+      })
+      .then((response) => {
+        document.getElementById('status').textContent = '✅ E-Mail versendet ✔️';
+        console.log('✅ Test-E-Mail:', response.status, response.text);
+      })
+      .catch((error) => {
+        document.getElementById('status').textContent = '❌ Fehler beim Senden';
+        console.error('❌ Fehler:', error);
+      });
+    }
+  </script>
+</body>
+</html>
