@@ -1,4 +1,8 @@
 import { supabase } from './supabaseClient.js'
+import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3.11.0/+esm'
+
+// ✅ EmailJS initialisieren
+emailjs.init('Lbr8GkmRKaWI8UFxT') // dein Public Key
 
 let adminFreigabe = false
 
@@ -7,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const feedback = document.getElementById('meldung-feedback')
   const adminLoginBtn = document.getElementById('admin-login-btn')
 
-  // 🔐 Admin-Freigabe
+  // 🔐 Admin-Freigabe aktivieren
   adminLoginBtn.addEventListener('click', (e) => {
     e.preventDefault()
     const pw = document.getElementById('admin-passwort').value.trim()
@@ -33,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
-    // 📝 In Supabase speichern
+    // 🔄 Eintrag speichern
     const { error } = await supabase.from('meldungen').insert([
       {
         artikelname,
@@ -50,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
-    // 📧 Email senden (optional, Fehler wird nicht blockierend behandelt)
+    // 📧 E-Mail senden
     try {
       await emailjs.send('service_635wmwu', 'template_yzgxwx6', {
         artikelname,
@@ -59,22 +63,20 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       console.log('📧 E-Mail versendet')
     } catch (err) {
-      console.error('❌ E-Mail-Fehler:', err)
+      console.error('❌ Fehler beim E-Mail-Versand:', err)
     }
 
-    // 🧹 Reset & Erfolgsmeldung
+    // ✅ Feedback anzeigen & neu laden
     form.reset()
     feedback.style.display = 'block'
     setTimeout(() => feedback.style.display = 'none', 3000)
-
-    // 🔁 Neu laden
     ladeMeldungen()
   })
 
   ladeMeldungen()
 })
 
-// 📥 Tabelle aktualisieren
+// 🔄 Tabelle mit aktuellen Meldungen laden
 async function ladeMeldungen() {
   const tbody = document.getElementById('meldungen-body')
   tbody.innerHTML = ''
@@ -111,7 +113,7 @@ async function ladeMeldungen() {
   })
 }
 
-// 🔄 Status-Auswahl (Dropdown)
+// ⬇️ Status-Dropdown erstellen
 function createStatusDropdown(id, currentStatus) {
   const select = document.createElement('select')
   const statusOptionen = [
@@ -129,13 +131,11 @@ function createStatusDropdown(id, currentStatus) {
     select.appendChild(option)
   })
 
-  // Nur aktivieren, wenn Admin freigegeben
   if (!adminFreigabe) {
     select.disabled = true
     select.title = 'Statusänderung nur mit Adminfreigabe möglich'
   }
 
-  // Speichern bei Änderung
   select.addEventListener('change', async () => {
     if (!adminFreigabe) return
 
@@ -151,7 +151,7 @@ function createStatusDropdown(id, currentStatus) {
       alert('❌ Fehler beim Status-Update')
       console.error(error)
     } else {
-      console.log('✅ Status aktualisiert:', neuerStatus)
+      console.log('✅ Status geändert:', neuerStatus)
       ladeMeldungen()
     }
   })
