@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('meldung-form')
   const feedback = document.getElementById('meldung-feedback')
 
-  // Admin-Freigabe über Button
+  // Adminfreigabe
   const adminLoginBtn = document.getElementById('admin-login-btn')
   adminLoginBtn.addEventListener('click', (e) => {
     e.preventDefault()
@@ -14,13 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pw === 'geheim') {
       adminFreigabe = true
       alert('✅ Adminrechte freigeschaltet')
-      ladeMeldungen() // neu laden, um Dropdowns aktiv zu setzen
+      ladeMeldungen()
     } else {
       alert('❌ Falsches Passwort')
     }
   })
 
-  // Neue Meldung absenden
+  // Formular absenden
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
 
@@ -44,6 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
+    // 📧 E-Mail senden mit EmailJS
+    emailjs.send('DEIN_SERVICE_ID', 'DEIN_TEMPLATE_ID', {
+      artikelname,
+      restbestand,
+      melder
+    })
+    .then(() => console.log('📧 E-Mail versendet'))
+    .catch(err => console.error('❌ E-Mail-Fehler:', err))
+
     form.reset()
     feedback.style.display = 'block'
     setTimeout(() => feedback.style.display = 'none', 3000)
@@ -56,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
 async function ladeMeldungen() {
   const tbody = document.getElementById('meldungen-body')
   tbody.innerHTML = ''
-
   const siebenTageZurueck = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
   const { data, error } = await supabase
@@ -126,7 +134,7 @@ function createStatusDropdown(id, currentStatus) {
       alert('❌ Fehler beim Status-Update')
       console.error(error)
     } else {
-      console.log('✅ Status aktualisiert:', neuerStatus)
+      console.log('✅ Status geändert:', neuerStatus)
       ladeMeldungen()
     }
   })
