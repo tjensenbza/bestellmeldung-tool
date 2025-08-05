@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('meldung-form')
   const feedback = document.getElementById('meldung-feedback')
   const adminPass = 'geheim' // 👈 dein Adminpasswort
+  const passInput = document.getElementById('admin-passwort')
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault()
@@ -13,7 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const melder = document.getElementById('melder').value
 
     const { error } = await supabase.from('meldungen').insert([
-      { artikelname, restbestand, melder }
+      {
+        artikelname,
+        restbestand,
+        melder,
+        status: 'Bedarf gemeldet',
+        status_zeit: new Date().toISOString()
+      }
     ])
 
     if (error) {
@@ -48,51 +55,61 @@ async function ladeMeldungen() {
   }
 
   const sichtbare = data.filter(m =>
-    !(m.status === 'geliefert' && m.status_zeit < siebenTageZurueck)
+    !(m.status === 'geliefert gewechselt' && m.status_zeit < siebenTageZurueck)
   )
 
   sichtbare.forEach(m => {
     const row = document.createElement('tr')
+    const statusDropdown = createStatusDropdown(m.id, m.status, passInput.value.trim())
     row.innerHTML = `
       <td>${m.artikelname}</td>
       <td>${m.restbestand}</td>
       <td>${m.melder}</td>
-      <td>
-        <span class="badge">${m.status ?? '-'}</span>
-        <button class="status-btn" data-id="${m.id}" data-status="${m.status}">⟳</button>
-      </td>
+      <td></td>
     `
     tbody.appendChild(row)
-  })
-
-  document.querySelectorAll('.status-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const eingabePasswort = passInput.value.trim()
-      if (eingabePasswort !== 'geheim') {
-        alert('❌ Falsches Passwort')
-        return
-      }
-
-      const id = btn.getAttribute('data-id')
-      const aktuellerStatus = btn.getAttribute('data-status')
-      const naechsterStatus = getNextStatus(aktuellerStatus)
-      if (!naechsterStatus) return alert('✅ Status ist bereits „geliefert“')
-
-      const { error } = await supabase.from('meldungen')
-        .update({ status: naechsterStatus, status_zeit: new Date().toISOString() })
-        .eq('id', id)
-
-      if (error) {
-        console.error('❌ Fehler beim Update:', error)
-      } else {
-        ladeMeldungen()
-      }
-    })
+    row.querySelector('td:last-child').appendChild(statusDropdown)
   })
 }
 
-function getNextStatus(status) {
-  const stufen = ['gemeldet', 'angefragt', 'bestellt', 'geliefert']
-  const idx = stufen.indexOf(status)
-  return idx >= 0 && idx < stufen.length - 1 ? stufen[idx + 1] : null
+function createStatusDropdown(id, currentStatus, password) {
+  const select = document.createElement('select')
+  const statusOptionen = [
+    'Bedarf gemeldet',
+    'angefragt beim Lieferanten',
+    'bestellt',
+    'geliefert gewechselt'
+  ]
+
+  statusOptionen.forEach(status => {
+    const option = document.createElement('option')
+    option.value = status
+    option.textContent = status
+    if (status === currentStatus) option.selected = true
+    select.appendChild(option)
+  })
+
+  select.addEventListener('change', async () => {
+    if (password !== 'geheim') {
+      alert('❌ Falsches Passwort – Änderung nicht erlaubt')
+      select.value = currentStatus
+      return
+    }
+
+    const neuerStatus = select.value
+
+    const { error } = await supabase.from('meldungen')
+      .update({ status: neuerStatus, status_zeit: new Date().toISOString() })
+      .eq('id', id)
+
+    if (error) {
+      alert('❌ Fehler beim Aktualisieren des Status')
+      console.error(error)
+      select.value = currentStatus
+    } else {
+      console.log('✅ Status aktualisiert:', neuerStatus)
+    }
+  })
+
+  return select
 }
