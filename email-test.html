@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>EmailJS Test</title>
+  <title>EmailJS Test (ohne Module)</title>
 </head>
 <body style="font-family: sans-serif; padding: 2rem;">
   <h1>📧 EmailJS Test</h1>
@@ -11,22 +11,24 @@
 
   <p id="status" style="margin-top: 2rem; font-weight: bold;"></p>
 
-  <script type="module">
-    import emailjs from 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+  <!-- ✅ EmailJS direkt eingebunden -->
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init('Lbr8GkmRKaWI8UFxT'); // Dein Public Key
+    })();
 
-    emailjs.init('Lbr8GkmRKaWI8UFxT'); // dein Public Key
-
-    window.sendeTestMail = () => {
+    function sendeTestMail() {
+      document.getElementById('status').textContent = '⏳ Sende...';
       emailjs.send('service_635wmwu', 'template_yzgxwx6', {
         artikelname: 'Testartikel vom iPad',
         restbestand: 3,
         melder: 'iPad User'
       })
-      .then((response) => {
+      .then(function(response) {
         document.getElementById('status').textContent = '✅ E-Mail versendet ✔️';
-        console.log('✅ Test-E-Mail:', response.status, response.text);
-      })
-      .catch((error) => {
+        console.log('✅ Erfolgreich:', response);
+      }, function(error) {
         document.getElementById('status').textContent = '❌ Fehler beim Senden';
         console.error('❌ Fehler:', error);
       });
